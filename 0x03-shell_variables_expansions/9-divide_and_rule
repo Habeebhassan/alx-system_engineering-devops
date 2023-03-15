@@ -1,3 +1,2 @@
 #!/bin/bash
-export POWER=4 export DIVIDE=2
 echo $(($POWER/DIVIDE))
