@@ -5,7 +5,7 @@ sudo apt-get -y install nginx
 sudo ufw allow 'Nginx HTTP'
 sudo mkdir -p /var/www/html /var/www/error
 sudo chmod -R 755 /var/www
-echo 'My School' > /var/www/html/index.html
+echo "My School" > /var/www/html/index.html
 echo "Page not found" > /var/www/html/404.html
 server_config=\
 "server {
