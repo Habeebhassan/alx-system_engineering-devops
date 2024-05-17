@@ -1,8 +1,26 @@
-#!/usr/bin/env bash
-# Setup nginx and start it
-sudo apt-get -y update
-sudo apt-get -y install nginx
-sudo ufw allow "Nginx HTTP"
-sudo chown -R "$USER:$USER" /var/www/html/index.nginx-debian.html
-sudo echo "Hello World!" | sudo tee /var/www/html/index.nginx-debian.html
-sudo service nginx restart
+#!/bin/bash
+
+# Update package list and install nginx
+sudo apt-get update
+sudo apt-get install -y nginx
+
+# Create the content for the web page
+echo "Hello World!" | sudo tee /var/www/html/index.html
+
+# Check and remove any existing duplicate try_files directive
+sudo sed -i '/try_files/d' /etc/nginx/sites-available/default
+
+# Ensure nginx is listening on port 80 and has the necessary configuration
+sudo sed -i 's|root /var/www/html;|root /var/www/html;\n\ttry_files $uri $uri/ =404;|' /etc/nginx/sites-available/default
+
+# Test the nginx configuration for syntax errors
+sudo nginx -t
+
+# Restart nginx using the service command if the configuration is valid
+if [ $? -eq 0 ]; then
+    sudo service nginx restart
+    echo "Nginx installation and configuration completed."
+    echo "You can verify by running: curl http://localhost/"
+else
+    echo "Nginx configuration test failed. Please check the configuration file."
+fi
