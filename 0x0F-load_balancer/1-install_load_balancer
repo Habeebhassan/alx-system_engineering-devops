@@ -5,9 +5,9 @@ apt-get -qq update
 apt-get -qq -y install software-properties-common
 
 # Add HAProxy PPA and install HAProxy
-add-apt-repository -y ppa:vbernat/haproxy-1.8
+add-apt-repository -y ppa:vbernat/haproxy
 apt-get -qq update
-apt-get -qq -y install haproxy=1.8.*
+apt-get -qq -y install haproxy
 
 # Backup the original HAProxy configuration file
 cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
