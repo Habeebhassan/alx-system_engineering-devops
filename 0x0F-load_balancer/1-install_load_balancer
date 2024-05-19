@@ -1,13 +1,35 @@
 #!/usr/bin/env bash
-# Setup new Machine machine with HAproxy load-balancer
-apt-get -y install software-properties-common
+
+# Update package list and install necessary dependencies
+apt-get -qq update
+apt-get -qq -y install software-properties-common
+
+# Add HAProxy PPA and install HAProxy
 add-apt-repository -y ppa:vbernat/haproxy-1.8
-apt-get -y update
-apt-get -y install haproxy=1.8.\*
-sed -i '/errorfile 504/a listen thelaura' /etc/haproxy/haproxy.cfg
-sed -i '/listen thelaura/a         bind :80' /etc/haproxy/haproxy.cfg
-sed -i '/bind :80/a         mode http' /etc/haproxy/haproxy.cfg
-sed -i '/mode http/a         server 395807-web-01 54.165.34.223:80 check' /etc/haproxy/haproxy.cfg
-sed -i '/server 395807-web-01 54.165.34.223:80 check/a         server 395807-web-02 34.207.57.80:80 check' /etc/haproxy/haproxy.cfg
-sed -i '/#EXTRAOPTS="-de -m 16"/a ENABLED=1' /etc/default/haproxy
+apt-get -qq update
+apt-get -qq -y install haproxy
+
+# Backup the original HAProxy configuration file
+cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
+
+# Configure HAProxy
+cat <<EOT >> /etc/haproxy/haproxy.cfg
+
+# Define a new listen section for the load balancer
+listen webservers
+    bind :80
+    mode http
+    server 395807-web-01 54.165.34.223:80 check
+    server 395807-web-02 34.207.57.80:80 check
+EOT
+
+# Enable HAProxy to start on boot and start the service
+sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
+
+# Start HAProxy service
 service haproxy start
+
+# Confirm HAProxy status
+service haproxy status
+
+echo "HAProxy configuration completed and service started."
