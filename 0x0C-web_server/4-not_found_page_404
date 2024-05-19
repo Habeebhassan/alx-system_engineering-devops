@@ -1,22 +1,26 @@
 #!/usr/bin/env bash
-# configure nginx and start it
-apt-get -y install nginx
+# Update package list and install nginx
+sudo apt-get update
+sudo apt-get install -y nginx
 
-# Firewall setting: Allow Nginx to serve on HTTP
-ufw allow 'Nginx HTTP'
+# Create the content for the web page
+echo "Hello World!" | sudo tee /var/www/html/index.html
 
-# start  a new index.html file used to  index.nginx-debian.html
-echo "Holberton School" >> /var/www/html/index.html
+# Check and remove any existing duplicate try_files directive
+sudo sed -i '/try_files/d' /etc/nginx/sites-available/default
 
-#offer user  ownership to website files
-chown -R $USER:$USER /var/www/html
-chmod -R 755 /var/www
+# Ensure nginx is listening on port 80 and has the necessary configuration
+sudo sed -i 's|root /var/www/html;|root /var/www/html;\n\ttry_files $uri $uri/ =404;|' /etc/nginx/sites-available/default
 
-# script Redirect to link /redirect_me to a youtube
-sed -i '37i\rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;' /etc/nginx/sites-available/default
+# Test the nginx configuration for syntax errors
+sudo nginx -t
 
-# initiate the 404 page
+# Redirect to my github profile 
+sed -i '37i\rewrite ^/redirect_me https://www.github.com/habeebhassan permanent;' /etc/nginx/sites-available/default
+
+# Configure error 404 page
 echo "Ceci n'est pas une page\n" >> /var/www/html/error_404.html
 sed -i '38i\error_page 404 /error_404.html;' /etc/nginx/sites-available/default
 
-service nginx start
+# Restart nginx using the service command if the configuration is valid
+sudo service nginx restart
