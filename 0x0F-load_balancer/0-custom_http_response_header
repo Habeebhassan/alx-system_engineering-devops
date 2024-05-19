@@ -1,31 +1,47 @@
 #!/usr/bin/env bash
-# Configuring new Ubuntu machine
-sudo apt-get -y update
-sudo apt-get -y install nginx
-sudo ufw allow 'Nginx HTTP'
+# Update package list and install nginx
+sudo apt-get update
+sudo apt-get install -y nginx
+
 sudo mkdir -p /var/www/html /var/www/error
 sudo chmod -R 755 /var/www
-echo "My School" > /var/www/html/index.html
-echo "Page not found" > /var/www/html/404.html
+
+# Create the content for the web page
+echo "Hello World!" | sudo tee /var/www/html/index.html
+echo "Ceci n'est pas une page" > /var/www/html/404.html
+# Check and remove any existing duplicate try_files directive
+sudo sed -i '/try_files/d' /etc/nginx/sites-available/default
+
+# Ensure nginx is listening on port 80 and has the necessary configuration
+sudo sed -i 's|root /var/www/html;|root /var/www/html;\n\ttry_files $uri $uri/ =404;|' /etc/nginx/sites-available/default
+
+# Test the nginx configuration for syntax errors
+sudo nginx -t
+
+# Redirect to my github profile
+sed -i '37i\rewrite ^/redirect_me https://www.github.com/habeebhassan permanent;' /etc/nginx/sites-available/default
+
 server_config=\
 "server {
-	listen 80 default_server;
-	listen [::]:80 default_server;
-	root /var/www/html;
-	index index.html index.htm index.nginx-debian.html;
-	server_name _;
-	add_header X-Served-By \$hostname;
-	location / {
-		try_files \$uri \$uri/ =404;
-	}
-	if (\$request_filename ~ redirect_me){
-		rewrite ^ https://youtube.com permanent;
-	}
-	error_page 404 /404.html;
-	location = /404.html {
-		internal;
-	}
+        listen 80 default_server;
+        listen [::]:80 default_server;
+        root /var/www/html;
+        index index.html index.htm index.nginx-debian.html;
+        server_name _;
+        add_header X-Served-By \$hostname;
+        location / {
+                try_files \$uri \$uri/ =404;
+        }
+        if (\$request_filename ~ redirect_me){
+                rewrite ^ https://youtube.com permanent;
+        }
+        error_page 404 /404.html;
+        location = /404.html {
+                internal;
+        }
 }"
 
 echo "$server_config" > /etc/nginx/sites-enabled/default
+
+# Restart nginx using the service command if the configuration is valid
 sudo service nginx restart
