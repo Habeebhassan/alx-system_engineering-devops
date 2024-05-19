@@ -7,18 +7,22 @@ apt-get -qq -y install software-properties-common
 # Add HAProxy PPA and install HAProxy
 add-apt-repository -y ppa:vbernat/haproxy-1.8
 apt-get -qq update
-apt-get -qq -y install haproxy
+apt-get -qq -y install haproxy=1.8.*
 
 # Backup the original HAProxy configuration file
 cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.bak
 
-# Configure HAProxy
+# Configure HAProxy to use roundrobin algorithm and manage traffic to web-01 and web-02
 cat <<EOT >> /etc/haproxy/haproxy.cfg
 
-# Define a new listen section for the load balancer
-listen webservers
-    bind :80
-    mode http
+# Define a frontend section to listen on port 80
+frontend http_front
+    bind *:80
+    default_backend http_back
+
+# Define a backend section for roundrobin load balancing
+backend http_back
+    balance roundrobin
     server 395807-web-01 54.165.34.223:80 check
     server 395807-web-02 34.207.57.80:80 check
 EOT
@@ -32,4 +36,4 @@ service haproxy start
 # Confirm HAProxy status
 service haproxy status
 
-echo "HAProxy configuration completed and service started."
+echo "HAProxy installation and configuration completed and service started."
