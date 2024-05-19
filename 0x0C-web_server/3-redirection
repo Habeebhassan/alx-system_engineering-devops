@@ -19,10 +19,4 @@ sudo nginx -t
 sed -i '37i\rewrite ^/redirect_me https://www.github.com/habeebhassan permanent;' /etc/nginx/sites-available/default
 
 # Restart nginx using the service command if the configuration is valid
-if [ $? -eq 0 ]; then
-    sudo service nginx restart
-    echo "Nginx installation and configuration completed."
-    echo "You can verify by running: curl http://localhost/"
-else
-    echo "Nginx configuration test failed. Please check the configuration file."
-fi
+sudo service nginx restart
