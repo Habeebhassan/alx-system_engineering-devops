@@ -1,18 +1,28 @@
 #!/usr/bin/env bash
-# configure nginx and start it
-apt-get -y install nginx
+# Update package list and install nginx
+sudo apt-get update
+sudo apt-get install -y nginx
 
-# Allow Nginx to serve on HTTP
-ufw allow 'Nginx HTTP'
+# Create the content for the web page
+echo "Hello World!" | sudo tee /var/www/html/index.html
 
-# supersedes the default index file served as home page
-echo "welcome home" >> /var/www/html/index.html
+# Check and remove any existing duplicate try_files directive
+sudo sed -i '/try_files/d' /etc/nginx/sites-available/default
 
-# offer user ownership to website files
-sudo chown -R $USER:$USER /var/www/html
-sudo chmod -R 755 /var/www
+# Ensure nginx is listening on port 80 and has the necessary configuration
+sudo sed -i 's|root /var/www/html;|root /var/www/html;\n\ttry_files $uri $uri/ =404;|' /etc/nginx/sites-available/default
 
-# Redirect the link to /redirect_me to a youtube video
-sed -i '37i\rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;' /etc/nginx/sites-available/default
+# Test the nginx configuration for syntax errors
+sudo nginx -t
 
-service nginx start
+# Redirect to my github profile 
+sed -i '37i\rewrite ^/redirect_me https://www.github.com/habeebhassan permanent;' /etc/nginx/sites-available/default
+
+# Restart nginx using the service command if the configuration is valid
+if [ $? -eq 0 ]; then
+    sudo service nginx restart
+    echo "Nginx installation and configuration completed."
+    echo "You can verify by running: curl http://localhost/"
+else
+    echo "Nginx configuration test failed. Please check the configuration file."
+fi
