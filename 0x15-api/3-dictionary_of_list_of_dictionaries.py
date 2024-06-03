@@ -5,7 +5,7 @@ if __name__ == "__main__":
 
     import json  # Importing the json module for handling JSON data
     import requests  # Importing the requests module for making HTTP requests
-    import sys  # Importing the sys module for system-specific parameters and functions
+    import sys  # Importing the sys module for system-specific
 
     # Making a GET request to fetch user data from the JSONPlaceholder API
     users = requests.get("https://jsonplaceholder.typicode.com/users")
@@ -34,11 +34,11 @@ if __name__ == "__main__":
                     "task": task.get('title'),
                     "completed": task.get('completed')
                 }
-                # Adding the task dictionary to the task list for the current user
+                # Adding the task dictionary to the task
                 taskList.append(taskDict)
         # Adding the task list for the current user to the todoAll dictionary
         todoAll[user.get('id')] = taskList
 
-    # Writing the todoAll dictionary to a JSON file named 'todo_all_employees.json'
+    # Writing the todoAll dictionary to a JSON file'
     with open('todo_all_employees.json', mode='w') as f:
         json.dump(todoAll, f)

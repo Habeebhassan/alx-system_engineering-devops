@@ -30,7 +30,7 @@ if __name__ == "__main__":
                         "completed": task.get('completed'),
                         "username": user.json().get('username')}
             # Append the task dictionary to the task list
-            taskList.append(taskDict)   
+            taskList.append(taskDict)
     # Add the task list to the user's data in the dictionary
     todoUser[userId] = taskList
 

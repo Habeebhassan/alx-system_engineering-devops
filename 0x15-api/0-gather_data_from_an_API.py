@@ -1,5 +1,8 @@
 #!/usr/bin/python3
-"""Using the REST API for a given employee ID, returns information about their TODO list progress"""
+"""
+Using the REST API for a given employee ID, returns
+information about their TODO list progress
+"""
 
 import requests
 import sys
@@ -7,14 +10,11 @@ import sys
 if __name__ == "__main__":
     # Get the user ID from the command line arguments
     userId = sys.argv[1]
-    
     # Request user data from the API
     user = requests.get("https://jsonplaceholder.typicode.com/users/{}"
                         .format(userId))
-    
     # Extract the user's name from the response
     name = user.json().get('name')
-    
     # Request TODO list data from the API
     todos = requests.get('https://jsonplaceholder.typicode.com/todos')
     totalTasks = 0
@@ -26,7 +26,7 @@ if __name__ == "__main__":
         if task.get('userId') == int(userId):
             totalTasks += 1  # Increment the total task count
             if task.get('completed'):
-                completed += 1  # Increment the completed task count if the task is done
+                completed += 1
 
     # Print the summary of tasks
     print('Employee {} is done with tasks({}/{}):'
